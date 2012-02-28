@@ -34,9 +34,8 @@ export PASSPHRASE="foobar_gpg_passphrase"
 GPG_KEY="foobar_gpg_key"
 
 # The ROOT of your backup (where you want the backup to start);
-# This can be / or somwhere else -- I use /home/ because all the
-# directories start with /home/ that I want to backup.
-ROOT="/home/"
+# This can be / or somwhere else.
+ROOT="/"
 
 # BACKUP DESTINATION INFORMATION
 # In my case, I use Amazon S3 use this - so I made up a unique
@@ -54,29 +53,27 @@ DEST="file:///home/foobar_user_name/new-backup-test/"
 # everything that is in root, you could leave this list empty (I think).
 #
 # Here is an example with multiple locations:
-#INCLIST=(  "/home/*/Documents" \
-#           "/home/*/Projects" \
-#           "/home/*/logs" \
-#           "/home/www/mysql-backups" \
-#        )
+INCLIST=( "/etc" "/srv" "/root" "/var" )
 #
 # Simpler example with one location:
-INCLIST=( "/home/foobar_user_name/Documents/Prose/" ) 
+#INCLIST=( "/home/foobar_user_name/Documents/Prose/" ) 
 
 # EXCLUDE LIST OF DIRECTORIES
-# Even though I am being specific about what I want to include,
-# there is still a lot of stuff I don't need.
-EXCLIST=(   "/home/*/Trash" \
-            "/home/*/Projects/Completed" \
-            "/**.DS_Store" "/**Icon?" "/**.AppleDouble" \
-        )
+# If you have your root directory set to "/" duplicity will
+# be all inclusive. So we need to exclude everything
+# and this will make your INCLIST work properly.
+# The config file already includes "**" to exclude
+# anything that is not explicitly specified.
+EXCLIST=( "" )
 
 # STATIC BACKUP OPTIONS
 # Here you can define the static backup options that you want to run with
 # duplicity.  I use both the `--full-if-older-than` option plus the
 # `--s3-use-new-style` option (for European buckets).  Be sure to separate your
 # options with appropriate spacing.
-STATIC_OPTIONS="--full-if-older-than 14D --s3-use-new-style"
+# --s3-use-rrs uses reduced redundancy and is an option that
+# is only available in newer versions of duplicity
+STATIC_OPTIONS="--full-if-older-than 14D --s3-use-new-style --s3-use-rrs --asynchronous-upload"
 
 # FULL BACKUP & REMOVE OLDER THAN SETTINGS
 # Because duplicity will continue to add to each backup as you go,
@@ -98,10 +95,10 @@ CLEAN_UP_VARIABLE="2"
 # I run this script as root, but save the log files under my user name --
 # just makes it easier for me to read them and delete them as needed.
 
-LOGDIR="/home/foobar_user_name/logs/test2/"
-LOG_FILE="duplicity-`date +%Y-%m-%d_%H-%M`.txt"
-LOG_FILE_OWNER="foobar_user_name:foobar_user_name"
-VERBOSITY="-v3"
+LOGDIR="/var/log/duplicity/"
+LOG_FILE="duplicity-`date +%Y-%m-%d_%H-%M`.log"
+LOG_FILE_OWNER="root:root"
+VERBOSITY="-v4"
 
 # EMAIL ALERT (*thanks: rmarescu*)
 # Provide an email address to receive the logfile by email. If no email
@@ -111,9 +108,9 @@ VERBOSITY="-v3"
 # used by default: "DT-S3 Alert ${LOG_FILE}"
 # MTA used: mailx
 #EMAIL="admin@example.com"
-EMAIL_TO=
-EMAIL_FROM=
-EMAIL_SUBJECT=
+#EMAIL_TO=
+#EMAIL_FROM=
+#EMAIL_SUBJECT=
 
 # TROUBLESHOOTING: If you are having any problems running this script it is
 # helpful to see the command output that is being generated to determine if the
@@ -140,7 +137,7 @@ README_TXT="In case you've long forgotten, this is a backup script that you used
 CONFIG_VAR_MSG="Oops!! ${0} was unable to run!\nWe are missing one or more important variables at the top of the script.\nCheck your configuration because it appears that something has not been set yet."
 
 if [ ! -x "$DUPLICITY" ]; then
-  echo "ERROR: duplicity not installed, that's gotta happen first!" >&2
+  echo "ERROR: duplicity not installed, check your distribution's documentation" >&2
   exit 1
 elif  [ `echo ${DEST} | cut -c 1,2` = "s3" ]; then
   if [ ! -x "$S3CMD" ]; then

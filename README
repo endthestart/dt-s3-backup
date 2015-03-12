@@ -1,10 +1,3 @@
-NOTE (Nov 13, 2011): I am currently not actively developing/managing this script.
-It was in working condition when I left it and has been forked/updated by a number
-of kind github community members.  Thank you all for your support, input, and time.
-I hope folks continue to find it useful.  I am not sure how succession is supposed
-to work in a github/open source project but I'm happy to hand over the reins at this
-point.  -Damon
-
 ABOUT THIS SCRIPT
 =================
 
@@ -20,11 +13,6 @@ machine ever does go belly up.
 
 Optionally, you can set up an email address where the log file will be sent,
 which is useful when the script is used via cron.
-
-More information about this script avaiable at:
-http://damontimm.com/code/dt-s3-backup
-
-Latest version of the code is available at:
 http://github.com/thornomad/dt-s3-backup
 
 BEFORE YOU START
